@@ -1,7 +1,8 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Data;
-using Nancy.Json;
+
 using System.Data.SqlClient;
 
 namespace PSWM_backend_project.Controllers
@@ -58,7 +59,7 @@ namespace PSWM_backend_project.Controllers
                 listProv.Add(prov);
             }
 
-            returnmsg = new JavaScriptSerializer().Serialize(listProv);
+            returnmsg = JsonConvert.SerializeObject(listProv);
 
 
 
