@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  pswm_backend:
+    image: ${DOCKER_REGISTRY-}pswmbackend
+    build:
+      context: .
+      dockerfile: PSWM_backend/Dockerfile
+    
+
+  db: 
+    restart: always
+    image: "mcr.microsoft.com/mssql/server:2019-latest" 
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    container_name: db
+      # Adding port mapping, using 1433 as default
+    ports:
+      - "1433:1433"
+      
