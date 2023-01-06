@@ -1,9 +1,19 @@
 ﻿
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using PSWM_backend.Model;
 using System.Data;
 
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace PSWM_backend_project.Controllers
 {
@@ -23,15 +33,16 @@ namespace PSWM_backend_project.Controllers
         //API Functions !!!!
 
         [Route("GetHello()")]
-        [HttpGet]
+        [HttpGet, Authorize]
 
         public string GetAllProvinces() {
-            string msg = "hola amigosssssss  adasdasd !!!";
+        
+        string msg = "hola amigosssssss  adasdasd !!!";
             return msg;
         }
 
         [Route("GetAllProvinces()")]
-        [HttpPost]
+        [HttpPost,Authorize]
         public string GetProvince()
         {
             string returnmsg;
@@ -94,5 +105,59 @@ namespace PSWM_backend_project.Controllers
         return msg;
 
         }
-     }
+        [Route("login()")]
+        [HttpPost]
+        public IActionResult Login([FromBody] login user)
+        {
+            var refreshtok = "";
+            if (user is null)
+            {
+                return BadRequest("Invalid client request");
+            }
+            if (user.UserName == "elie" && user.Password == "elie@123")
+            {
+                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345543345"));
+                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+                var tokeOptions = new JwtSecurityToken(
+                    issuer: "https://localhost:5000",
+                    audience: "https://localhost:5000",
+                    claims: new List<Claim>(),
+                    expires: DateTime.UtcNow.AddHours(5),
+                    signingCredentials: signinCredentials
+                ) ;
+                var issueDate = DateTime.UtcNow;
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+                var token = new JwtSecurityToken().InnerToken;
+                var tokenTo = tokeOptions.ValidTo;
+
+                var randomNumber = new byte[32];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(randomNumber);
+                    refreshtok = Convert.ToBase64String(randomNumber).ToString();
+                }
+
+                return Ok(new AuthenticatedResponse { accessToken = tokenString, refreshToken= refreshtok, issueDate=issueDate.ToString(),expireDate = tokenTo.ToString()});
+            }
+            return Unauthorized();
+        }
+
+        
+        [HttpPost("SignUp()")]
+        public string signUp()
+        {
+            string id = "";
+
+            id = Guid.NewGuid().ToString().Substring(0, 13);
+            return id;
+            
+
+
+            
+        }
+
+
+    }
+
+
 }
