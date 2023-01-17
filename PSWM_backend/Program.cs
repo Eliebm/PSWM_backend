@@ -5,6 +5,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{ 
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.AllowAnyOrigin();
+            builder.AllowAnyHeader();
+            builder.AllowAnyMethod();
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -34,7 +45,7 @@ builder.Services.AddSwaggerGen(c => {
                         Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
 });
@@ -66,7 +77,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
