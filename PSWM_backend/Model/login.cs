@@ -2,12 +2,12 @@
 {
     public class login
     {
-        public string? UserName { get; set; }
-        public string? Password { get; set; }
+        public string? userName { get; set; }
+        public string? password { get; set; }
     }
     public class AuthenticatedResponse
     {
-        public int ID { get; set; }
+        public string? ID { get; set; }
         public string? accessToken { get; set; }
         public string? refreshToken { get; set; }
         public string? issueDate { get; set; }

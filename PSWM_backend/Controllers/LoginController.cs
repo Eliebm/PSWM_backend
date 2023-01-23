@@ -1,48 +1,38 @@
-﻿
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PSWM_backend.Model;
 using System.Data;
-
 using System.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using PSWM_backend.Controllers;
+using System.Security.AccessControl;
+using System.IO.Pipelines;
+using PSWM_backend;
 
 namespace PSWM_backend_project.Controllers
-{
+{ 
+    
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
     {
-
+        
         private readonly IConfiguration _configuration;
-
-        public LoginController(IConfiguration configuration)
+        private readonly IadditionalService _service;
+        public LoginController(IConfiguration configuration, IadditionalService addService)
         {
             _configuration = configuration;
+            _service = addService;
+            
         }
-
+        
+        // Additional Functions
 
         //API Functions !!!!
 
-        [Route("GetHello()")]
-        [HttpGet, Authorize]
 
-        public string GetAllProvinces() {
-        
-        string msg = "hola amigosssssss  adasdasd !!!";
-            return msg;
-        }
 
         [Route("GetAllProvinces()")]
-        [HttpPost,Authorize]
+        [HttpPost]
         public string GetProvince()
         {
             string returnmsg;
@@ -108,47 +98,43 @@ namespace PSWM_backend_project.Controllers
         [Route("login()")]
         [HttpPost]
         public IActionResult Login([FromBody] login user)
-        {
-            var refreshtok = "";
+        { 
+           
             if (user is null)
             {
                 return BadRequest("Invalid client request");
             }
-            if (user.UserName == "elie" && user.Password == "elie@123")
-            {
-                var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345543345"));
-                var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-                var tokeOptions = new JwtSecurityToken(
-                    issuer: "https://localhost:5000",
-                    audience: "https://localhost:5000",
-                    claims: new List<Claim>(),
-                    expires: DateTime.UtcNow.AddHours(5),
-                    signingCredentials: signinCredentials
-                ) ;
-                var issueDate = DateTime.UtcNow;
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-                var token = new JwtSecurityToken().InnerToken;
-                var tokenTo = tokeOptions.ValidTo;
-
-                var randomNumber = new byte[32];
-                using (var rng = RandomNumberGenerator.Create())
-                {
-                    rng.GetBytes(randomNumber);
-                    refreshtok = Convert.ToBase64String(randomNumber).ToString();
-                }
-
-                return Ok(new AuthenticatedResponse { accessToken = tokenString, refreshToken= refreshtok, issueDate=issueDate.ToString(),expireDate = tokenTo.ToString()});
+            string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+            try { 
+            SqlConnection sqlcon = new(dbConnection);
+            SqlCommand cmd = new("userLogin",sqlcon);
+            cmd.CommandType = CommandType.StoredProcedure;
+            
+                cmd.Parameters.Add("@accountname", SqlDbType.NVarChar).Value=user.userName;
+                cmd.Parameters.Add("@password", SqlDbType.NVarChar).Value = user.password;
+                sqlcon.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+            
+            
+            if (dr.Read()) {
+                    var id = dr["user_id"].ToString();
+                    return Ok(_service.tokenAuthentication(id));
             }
             return Unauthorized();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+            
         }
 
         
         [HttpPost("SignUp()")]
         public string signUp()
         {
-            string id = "";
+            string id;
 
-            id = Guid.NewGuid().ToString().Substring(0, 13);
+            id = Guid.NewGuid().ToString()[..13];
             return id;
             
 

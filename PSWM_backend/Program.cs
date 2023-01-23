@@ -1,9 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PSWM_backend;
+using PSWM_backend.Controllers;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register class and interface to use them in dependecy injection
+
+builder.Services.AddScoped<IadditionalService, Authentication>();
+
 
 builder.Services.AddCors(options =>
 { 
