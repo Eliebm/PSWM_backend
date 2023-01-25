@@ -39,10 +39,10 @@ namespace PSWM_backend.Controllers
                 issuer: "https://localhost:44229",
                 audience: "https://localhost:44200",
                 claims: new List<Claim>(),
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(1),
                 signingCredentials: signinCredentials
             );
-            var issueDate = DateTime.Now;
+            var issueDate = DateTime.UtcNow;
             var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
             var token = new JwtSecurityToken().InnerToken;
             var tokenTo = tokeOptions.ValidTo;
@@ -53,11 +53,11 @@ namespace PSWM_backend.Controllers
                 rng.GetBytes(randomNumber);
                 refreshtok = Convert.ToBase64String(randomNumber).ToString();
             }
-            var unixdate = new DateTimeOffset(tokenTo).ToUnixTimeSeconds();
+            var unixdate = new DateTimeOffset(tokenTo).ToUnixTimeMilliseconds();
 
             string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
             
-                SqlConnection sqlcon = new(dbConnection);
+            SqlConnection sqlcon = new(dbConnection);
             SqlCommand cmd = new("updateToken", sqlcon);
             cmd.CommandType = CommandType.StoredProcedure;
 
@@ -65,7 +65,10 @@ namespace PSWM_backend.Controllers
             cmd.Parameters.Add("@token", SqlDbType.NVarChar).Value = refreshtok;
             sqlcon.Open();
             SqlDataReader dr = cmd.ExecuteReader();
-
+            
+            
+            dr.Close();
+            sqlcon.Close();
 
             return JsonConvert.SerializeObject(new AuthenticatedResponse { ID = id, accessToken = tokenString, refreshToken = refreshtok, issueDate = issueDate.ToString(), expireDate = unixdate.ToString() });
 

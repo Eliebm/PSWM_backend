@@ -7,6 +7,7 @@ using PSWM_backend.Controllers;
 using System.Security.AccessControl;
 using System.IO.Pipelines;
 using PSWM_backend;
+using System.Text.Json;
 
 namespace PSWM_backend_project.Controllers
 { 
@@ -95,21 +96,20 @@ namespace PSWM_backend_project.Controllers
         return msg;
 
         }
+
         [Route("login()")]
         [HttpPost]
+
         public IActionResult Login([FromBody] login user)
         { 
-           
-            if (user is null)
-            {
-                return BadRequest("Invalid client request");
-            }
             string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
-            try { 
-            SqlConnection sqlcon = new(dbConnection);
-            SqlCommand cmd = new("userLogin",sqlcon);
-            cmd.CommandType = CommandType.StoredProcedure;
-            
+            try
+            {
+                SqlConnection sqlcon = new(dbConnection);
+                SqlCommand cmd = new("userLogin", sqlcon)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
                 cmd.Parameters.Add("@accountname", SqlDbType.NVarChar).Value=user.userName;
                 cmd.Parameters.Add("@password", SqlDbType.NVarChar).Value = user.password;
                 sqlcon.Open();
@@ -120,7 +120,10 @@ namespace PSWM_backend_project.Controllers
                     var id = dr["user_id"].ToString();
                     return Ok(_service.tokenAuthentication(id));
             }
-            return Unauthorized();
+            
+                dr.Close();
+                sqlcon.Close();
+                return Unauthorized();
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
 
@@ -128,9 +131,39 @@ namespace PSWM_backend_project.Controllers
             
         }
 
-        
+        [Route("RefreshToken()")]
+        [HttpPost]
+        public string RefreshToken([FromBody] refreshtok refToken) {
+            string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+            try
+            {
+                SqlConnection sqlcon = new(dbConnection);
+                SqlCommand cmd = new("refreshtoken", sqlcon)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.Add("@userid", SqlDbType.NVarChar).Value = refToken.id;
+                cmd.Parameters.Add("@refresh_token", SqlDbType.NVarChar).Value = refToken.token;
+                sqlcon.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    return _service.tokenAuthentication(refToken.id);
+                }
+                else
+                {
+                    string msg = JsonConvert.SerializeObject(new refreshtok { id = "null", token = "null", response = 1 });
+                    return msg;
+
+                }
+            } catch (Exception ex) { return ex.Message; }
+            
+        }
+
+
         [HttpPost("SignUp()")]
-        public string signUp()
+        public string SignUp()
         {
             string id;
 
