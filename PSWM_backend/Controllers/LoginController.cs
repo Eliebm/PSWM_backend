@@ -8,6 +8,8 @@ using System.Security.AccessControl;
 using System.IO.Pipelines;
 using PSWM_backend;
 using System.Text.Json;
+using System.Data.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace PSWM_backend_project.Controllers
 { 
@@ -100,7 +102,7 @@ namespace PSWM_backend_project.Controllers
         [Route("login()")]
         [HttpPost]
 
-        public IActionResult Login([FromBody] login user)
+        public IActionResult Login([FromBody] Login user)
         { 
             string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
             try
@@ -133,7 +135,7 @@ namespace PSWM_backend_project.Controllers
 
         [Route("RefreshToken()")]
         [HttpPost]
-        public string RefreshToken([FromBody] refreshtok refToken) {
+        public string RefreshToken([FromBody] Refreshtok refToken) {
             string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
             try
             {
@@ -153,30 +155,109 @@ namespace PSWM_backend_project.Controllers
                 }
                 else
                 {
-                    string msg = JsonConvert.SerializeObject(new refreshtok { id = "null", token = "null", response = 1 });
+                    string msg = JsonConvert.SerializeObject(new Refreshtok { id = "null", token = "null", response = 1 });
                     return msg;
 
                 }
+                
+                dr.Close();
+                sqlcon.Close();
             } catch (Exception ex) { return ex.Message; }
             
         }
 
-
-        [HttpPost("SignUp()")]
-        public string SignUp()
+        [Route("SignUp()")]
+        [HttpPost]
+        public IActionResult SignUp([FromBody] Signup sign)
         {
             string id;
 
-            id = Guid.NewGuid().ToString()[..13];
-            return id;
+           id = Guid.NewGuid().ToString()[..13];
+
+            string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+            try
+            {
+                SqlConnection sqlcon = new(dbConnection);
+                SqlCommand cmd = new("checkUserId", sqlcon)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@id", SqlDbType.NVarChar).Value = id;
+                sqlcon.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read()) {
+                    id = Guid.NewGuid().ToString()[..13];
+                    cmd.Cancel();
+                }
+                
+                    cmd = new("Signup", sqlcon)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.Add("@id", SqlDbType.NVarChar).Value = id;
+                    cmd.Parameters.Add("@name", SqlDbType.NVarChar).Value = sign.name;
+                    cmd.Parameters.Add("@lname", SqlDbType.NVarChar).Value = sign.lname;
+                    cmd.Parameters.Add("@phone", SqlDbType.NVarChar).Value = sign.phone;
+                    cmd.Parameters.Add("@email", SqlDbType.NVarChar).Value = sign.email;
+                    cmd.Parameters.Add("@accountname", SqlDbType.NVarChar).Value = sign.account;
+                    cmd.Parameters.Add("@pass", SqlDbType.NVarChar).Value = sign.pass;
+                    cmd.Parameters.Add("@token", SqlDbType.NVarChar).Value = "null";
+                    dr = cmd.ExecuteReader();
+
+                
+
+
+
+                dr.Close();
+                sqlcon.Close();
+                return Ok(1);
+
+            }
+            catch (Exception ex) {   return BadRequest(ex.Message); }
+
             
 
 
-            
+
+
         }
 
+        [Route("AdminLogin()")]
+        [HttpPost]
+        public IActionResult AdminLogin([FromBody] Admin admin)
+        {
 
+            string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+            try
+            {
+                SqlConnection sqlcon = new(dbConnection);
+                SqlCommand cmd = new("AdminLogin", sqlcon)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@id", SqlDbType.NVarChar).Value = admin.adminid;
+                cmd.Parameters.Add("@name", SqlDbType.NVarChar).Value = admin.adminName;
+                cmd.Parameters.Add("@pass", SqlDbType.NVarChar).Value = admin.adminPass;
+                sqlcon.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+
+                if (dr.Read())
+                {
+                    
+                    return Ok(1);
+                }
+
+                dr.Close();
+                sqlcon.Close();
+                return Unauthorized();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+
+        }
     }
-
+    
 
 }

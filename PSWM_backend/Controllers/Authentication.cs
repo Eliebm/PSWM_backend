@@ -39,7 +39,7 @@ namespace PSWM_backend.Controllers
                 issuer: "https://localhost:44229",
                 audience: "https://localhost:44200",
                 claims: new List<Claim>(),
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: signinCredentials
             );
             var issueDate = DateTime.UtcNow;
