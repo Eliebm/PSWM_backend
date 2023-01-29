@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Register class and interface to use them in dependecy injection
 
 builder.Services.AddScoped<IadditionalService, Authentication>();
+builder.Services.AddScoped<IMappers, Mappers>();
 
 
 builder.Services.AddCors(options =>

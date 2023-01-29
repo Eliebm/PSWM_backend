@@ -2,6 +2,9 @@
 {
     public interface IadditionalService
     {
-      string tokenAuthentication(string id);
+     public string tokenAuthentication(string id);
+      
+        
     }
+   
 }
