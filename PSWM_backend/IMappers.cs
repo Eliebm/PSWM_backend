@@ -1,7 +1,12 @@
-﻿namespace PSWM_backend
+﻿using PSWM_backend.Model;
+using System.Data;
+
+namespace PSWM_backend
 {
     public interface IMappers
     {
-        void district();
+        District GetAllDistrict(IDataReader dataread);
+        City GetCity(IDataReader dataread);
+        User GetUser(IDataReader dataread);
     }
 }

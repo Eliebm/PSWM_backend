@@ -36,10 +36,10 @@ namespace PSWM_backend.Controllers
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345543345"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var tokeOptions = new JwtSecurityToken(
-                issuer: "https://localhost:44229",
-                audience: "https://localhost:44200",
+                issuer: "https://localhost:5000",
+                audience: "https://localhost:5000",
                 claims: new List<Claim>(),
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddHours(3),
                 signingCredentials: signinCredentials
             );
             var issueDate = DateTime.UtcNow;

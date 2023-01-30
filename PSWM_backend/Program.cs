@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IadditionalService, Authentication>();
 builder.Services.AddScoped<IMappers, Mappers>();
-
+builder.Services.AddScoped<IGetSetSPI, GetSetSPI>();
 
 builder.Services.AddCors(options =>
 { 

@@ -1,7 +1,7 @@
 ﻿namespace PSWM_backend.Model
 {
     public class Login
-    {
+    {   
         public string? userName { get; set; }
         public string? password { get; set; }
     }
@@ -41,6 +41,25 @@
 
         public string? pass { get; set; }
 
+
+    }
+
+    public class User
+    {
+        public string? account { get; set; }
+        public string? name { get; set; }
+        public string? password { get; set; }
+        public string? phone { get; set; }
+        public string? email { get; set; }
+
+
+
+    }
+
+    public class ChangePassword
+    {
+        public string? id { get; set; }
+        public string? password { get; set; }
 
     }
 }

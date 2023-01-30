@@ -10,6 +10,7 @@ using PSWM_backend;
 using System.Text.Json;
 using System.Data.Common;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PSWM_backend_project.Controllers
 { 
@@ -21,13 +22,14 @@ namespace PSWM_backend_project.Controllers
         
         private readonly IConfiguration _configuration;
         private readonly IadditionalService _service;
-        public LoginController(IConfiguration configuration, IadditionalService addService)
+        private readonly IGetSetSPI _getSPI;
+        public LoginController(IConfiguration configuration, IadditionalService addService, IGetSetSPI getSPI)
         {
             _configuration = configuration;
             _service = addService;
-            
+            _getSPI = getSPI;
         }
-        
+
         // Additional Functions
 
         //API Functions !!!!
@@ -71,6 +73,7 @@ namespace PSWM_backend_project.Controllers
         [HttpPost]
         public string RefreshToken([FromBody] Refreshtok refToken) {
             string dbConnection = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+            string result;
             try
             {
                 SqlConnection sqlcon = new(dbConnection);
@@ -85,17 +88,19 @@ namespace PSWM_backend_project.Controllers
                 SqlDataReader dr = cmd.ExecuteReader();
                 if (dr.Read())
                 {
-                    return _service.tokenAuthentication(refToken.id);
+                    result= _service.tokenAuthentication(refToken.id);
                 }
                 else
                 {
-                    string msg = JsonConvert.SerializeObject(new Refreshtok { id = "null", token = "null", response = 1 });
-                    return msg;
+                    result = JsonConvert.SerializeObject(new Refreshtok { id = "null", token = "null", response = 1 });
+                   
 
                 }
                 
-                dr.Close();
+               
                 sqlcon.Close();
+                dr.Close();
+                return result;
             } catch (Exception ex) { return ex.Message; }
             
         }
@@ -191,6 +196,25 @@ namespace PSWM_backend_project.Controllers
 
 
         }
+
+
+
+        [Route("ChangeUserPassword()")]
+        [HttpPost, Authorize]
+
+        public IActionResult ChangeUserPassword([FromBody] ChangePassword changep)
+        {
+            try { return Ok(_getSPI.PostSpAllItem<ChangePassword>("ChangeUserPassword", changep.id, changep.password)); }
+            catch (Exception ex) { return BadRequest(ex.Message); } 
+            
+
+
+        }
+
+
+
+
+
     }
     
 
