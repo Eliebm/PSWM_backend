@@ -8,5 +8,6 @@ namespace PSWM_backend
         District GetAllDistrict(IDataReader dataread);
         City GetCity(IDataReader dataread);
         User GetUser(IDataReader dataread);
+        Device FetchAllDevices(IDataReader dataread);
     }
 }

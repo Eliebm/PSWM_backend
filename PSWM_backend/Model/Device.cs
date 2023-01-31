@@ -1,4 +1,6 @@
-﻿namespace PSWM_backend.Model
+﻿using Nancy.Routing.Trie;
+
+namespace PSWM_backend.Model
 {
     public class Device
     {
@@ -7,6 +9,7 @@
         public string? name { get; set; }
 
         public int city { get; set; }
+        public string? cityname { get; set; }    
         public string? street { get; set; }
         public string? building { get; set; }
         public int idleday { get; set; }
@@ -15,6 +18,7 @@
         public DateTime cyclefrom { get; set; }
         public DateTime cycleto { get; set; }
 
+        public int quantityused { get; set; }
         public string? userstatus { get; set; }
         public string? adminstatus { get; set; }
 

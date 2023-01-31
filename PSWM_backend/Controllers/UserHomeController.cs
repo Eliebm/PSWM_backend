@@ -98,13 +98,15 @@ namespace PSWM_backend.Controllers
             
 
         }
+
+
         [Route("AddNewDevice()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult AddNewDevice([FromBody] Device device)
         {
             string id;
-            var dateTimeNow = DateTime.Now; // Return 00/00/0000 00:00:00
+            var dateTimeNow = DateTime.Now; 
             
 
             id = Guid.NewGuid().ToString()[..5];
@@ -114,15 +116,33 @@ namespace PSWM_backend.Controllers
             int quant = 100;
             string userstatus = "false";
             string adminstatus = "true";
-            var datefrom = dateTimeNow.ToString();
+            var datefrom = dateTimeNow.ToShortDateString();
+            int quantused = 0;
 
 
 
-            try { return Ok(_GetSetSPI.PostSpAllItem<Device>("addNewDevice",id,mac,device.name,device.city,device.street,device.building, idleday, dateto, quant, userstatus, adminstatus,device.id, datefrom)); }
+            try { return Ok(_GetSetSPI.PostSpAllItem<Device>("addNewDevice",id,mac,device.name,device.city,device.street,device.building, idleday, dateto, quant, userstatus, adminstatus,device.id, datefrom, quantused)); }
             catch (Exception ex) { return BadRequest(ex.Message); }
 
 
 
         }
+    
+
+
+        [Route("FetchUserDevices()")]
+        [HttpPost, Authorize]
+        public IActionResult FetchUserDevices([FromBody] User user)
+         {
+        try
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Device>("FetchUserDevices", _mapperservice.FetchAllDevices, user.id)));
+        }
+        catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+        }
+
+
     }
 }

@@ -37,6 +37,24 @@ namespace PSWM_backend.Controllers
             return user;
         
         }
-        
-    }
+
+        public Device FetchAllDevices(IDataReader dataread)
+        {
+
+
+            Device device = new Device();
+            IDataReader dr = dataread;
+            device.id = dr["deviceId"].ToString();
+            device.name = dr["name"].ToString();
+            device.cityname = dr["city_name"].ToString();
+            device.quantityused = (int)dr["quantityused"] * 100 / (int)dr["recharge_quantity"];
+            device.rechargequantity = (int)dr["recharge_quantity"];
+            device.userstatus = dr["user_status"].ToString();
+            device.adminstatus = dr["admin_status"].ToString();
+
+            return device;
+
+        }
+
+        }
 }
