@@ -27,7 +27,7 @@ namespace PSWM_backend.Controllers
 
 
         [Route("GetAllProvinces()")]
-        [HttpPost, Authorize]
+        [HttpPost,Authorize]
         public string GetProvince()
         {
             string returnmsg;

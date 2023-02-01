@@ -1,5 +1,6 @@
 ﻿using PSWM_backend.Model;
 using System.Data;
+using System.Numerics;
 
 namespace PSWM_backend.Controllers
 {
@@ -47,8 +48,8 @@ namespace PSWM_backend.Controllers
             device.id = dr["deviceId"].ToString();
             device.name = dr["name"].ToString();
             device.cityname = dr["city_name"].ToString();
-            device.quantityused = (int)dr["quantityused"] * 100 / (int)dr["recharge_quantity"];
-            device.rechargequantity = (int)dr["recharge_quantity"];
+            device.quantityused = (Int64)dr["quantityused"] * 100 / (Int64)dr["recharge_quantity"];
+            device.rechargequantity = (Int64)dr["recharge_quantity"];
             device.userstatus = dr["user_status"].ToString();
             device.adminstatus = dr["admin_status"].ToString();
 
@@ -56,5 +57,19 @@ namespace PSWM_backend.Controllers
 
         }
 
+        public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread) {
+            Arduinoinfo ard = new();
+            IDataReader dr = dataread;
+            ard.id = dr["deviceId"].ToString();
+            ard.remainingquant = (Int64)dr["recharge_quantity"] - (Int64)dr["quantityused"];
+            ard.userstatus = dr["user_status"].ToString();
+            ard.adminstatus = dr["admin_status"].ToString();
+
+            return ard;
+
         }
+
+
+
+    }
 }

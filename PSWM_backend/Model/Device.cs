@@ -1,4 +1,5 @@
 ﻿using Nancy.Routing.Trie;
+using System.Numerics;
 
 namespace PSWM_backend.Model
 {
@@ -13,12 +14,12 @@ namespace PSWM_backend.Model
         public string? street { get; set; }
         public string? building { get; set; }
         public int idleday { get; set; }
-        public int rechargequantity { get; set; }
+        public Int64 rechargequantity { get; set; }
 
         public DateTime cyclefrom { get; set; }
         public DateTime cycleto { get; set; }
 
-        public int quantityused { get; set; }
+        public Int64 quantityused { get; set; }
         public string? userstatus { get; set; }
         public string? adminstatus { get; set; }
 
