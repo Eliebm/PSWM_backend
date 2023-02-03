@@ -5,8 +5,9 @@ using System.Data;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-
-
+using Microsoft.AspNetCore.Mvc.ViewComponents;
+using System.Collections.Generic;
+using Microsoft.VisualBasic;
 
 namespace PSWM_backend.Controllers
 {
@@ -17,12 +18,14 @@ namespace PSWM_backend.Controllers
         private readonly IConfiguration _configuration;
         private readonly IMappers _mapperservice;
         private readonly IGetSetSPI _GetSetSPI;
-        public UserHomeController(IConfiguration configuration, IMappers mapperService ,IGetSetSPI getSetSPI)
+        private readonly IadditionalService _additionService;
+        
+        public UserHomeController(IConfiguration configuration, IMappers mapperService ,IGetSetSPI getSetSPI,IadditionalService addition)
         {
             _configuration = configuration;
             _mapperservice = mapperService;
             _GetSetSPI = getSetSPI;
-
+            _additionService= addition;
         }
 
 
@@ -111,7 +114,7 @@ namespace PSWM_backend.Controllers
 
             id = Guid.NewGuid().ToString()[..5];
             string mac = "null";
-            int idleday = 10;
+            int idleday = 30;
             var dateto = dateTimeNow.AddMonths(1).ToShortDateString();
             int quant = 100;
             string userstatus = "false";
@@ -131,18 +134,79 @@ namespace PSWM_backend.Controllers
 
 
         [Route("FetchUserDevices()")]
-        [HttpPost, Authorize]
+        [HttpPost]
         public IActionResult FetchUserDevices([FromBody] User user)
          {
+            var date = DateTime.Now;
         try
-        {
-            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Device>("FetchUserDevices", _mapperservice.FetchAllDevices, user.id)));
-        }
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("GetDevicesid", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@userid", SqlDbType.NVarChar).Value = user.id;
+                SqlDataReader dr = cmd.ExecuteReader();
+                 var listd= new List<Device>();
+                
+
+                while (dr.Read())
+                {
+                    Device device = new Device();
+                    device.id = dr["deviceId"].ToString();
+                    listd.Add(device);
+
+                }
+                cmd.Cancel();
+                con.Close();
+                List<string> branches = listd.Select(q => q.id).Distinct().ToList();
+                con.Open();
+                foreach (string b in branches)
+                {   
+                    long amount = 0;
+                    string year = date.Year.ToString();
+                    string month = date.Month.ToString();
+                    
+                    SqlCommand cmd1 = new("GetUsedAmountForEachDevice", con)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = b;
+                    cmd1.Parameters.Add("@setyear", SqlDbType.NVarChar).Value = year;
+                    cmd1.Parameters.Add("@setmonth", SqlDbType.NVarChar).Value = month;
+
+                    SqlDataReader dr1 = cmd1.ExecuteReader();
+
+                   while(dr1.Read())
+                    {
+                        amount += (long)dr1["usedamount"];
+                        
+                       
+                    }
+                    SqlCommand cmd2 = new("UpdateDeviceQuantityUsed", con)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd2.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = b;
+                    cmd2.Parameters.Add("@quant", SqlDbType.BigInt).Value = amount;
+                    dr1 = cmd2.ExecuteReader();
+
+                    dr1.Close();
+                }con.Close();
+
+                
+
+                return Ok();
+              //  return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Device>("FetchUserDevices", _mapperservice.FetchAllDevices, user.id)));
+                
+            }
         catch (Exception ex) { return BadRequest(ex.Message); }
 
 
         }
-
+      
 
     }
 }

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PSWM_backend.Controllers;
 using PSWM_backend.Model;
+using System;
 using System.Data;
 
 using System.Data.SqlClient;
@@ -73,5 +74,69 @@ namespace PSWM_backend.Controllers
             return JsonConvert.SerializeObject(new AuthenticatedResponse { ID = id, accessToken = tokenString, refreshToken = refreshtok, issueDate = issueDate.ToString(), expireDate = unixdate.ToString() });
 
         }
+
+
+        public void CheckDateValidation(string id)
+        {
+            
+            int idle = 0;
+            DateTime date = DateTime.Now;
+            int newidleday= 30;
+            int NrOfDays = 0;
+
+            DateTime? dateto = DateTime.Now;
+
+
+
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("CheckIdleDays", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    idle = (int)dr["idleDays"];
+                    dateto = (DateTime)dr["cycleTo"];
+                }
+                con.Close();
+                int res = date.Date.CompareTo(dateto);
+
+
+                if (res == 1)
+                { 
+
+                    TimeSpan t = (TimeSpan)(date - dateto);
+                    NrOfDays = t.Days;
+                    
+
+                }
+                if(newidleday - NrOfDays != idle)
+                {
+                    newidleday = newidleday - NrOfDays;
+                    con.Open();
+                    SqlCommand cmd1 = new("UpdateIdleDays", con)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                    cmd1.Parameters.Add("@idle", SqlDbType.NVarChar).Value = newidleday;
+                    SqlDataReader dr1 = cmd1.ExecuteReader();
+
+                }
+
+                
+
+
+            }
+            catch (Exception ex) { }
+
+        }
+
     }
 }
