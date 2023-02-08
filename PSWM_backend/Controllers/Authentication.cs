@@ -130,8 +130,8 @@ namespace PSWM_backend.Controllers
 
                 }
 
-                
 
+                con.Close();
 
             }
             catch (Exception ex) { }

@@ -137,8 +137,9 @@ namespace PSWM_backend.Controllers
         [HttpPost]
         public IActionResult FetchUserDevices([FromBody] User user)
          {
+            
             var date = DateTime.Now;
-        try
+          try
             {
                 string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
                 SqlConnection con = new(logDbConnectionString);
@@ -198,15 +199,31 @@ namespace PSWM_backend.Controllers
 
                 
 
-                return Ok();
-              //  return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Device>("FetchUserDevices", _mapperservice.FetchAllDevices, user.id)));
+                
+                return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Device>("FetchUserDevices", _mapperservice.FetchAllDevices, user.id)));
                 
             }
         catch (Exception ex) { return BadRequest(ex.Message); }
 
 
         }
-      
+        [Route("FetchDeviceDetails()")]
+        [HttpPost,Authorize]
+
+        public IActionResult FetchDeviceDetails([FromBody] DeviceDetails device)
+        {
+            _additionService.CheckDateValidation(device.id);
+
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails",_mapperservice.Fetchdevicedetails,device.id)));
+        }
+
+        [Route("TurndeviceOnOff()")]
+        [HttpPost,Authorize]
+
+        public IActionResult TurndeviceOnOff([FromBody] DeviceDetails device)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeviceDetails>("turndeviceOnOff", device.id,device.userstatus)));
+        }
 
     }
 }

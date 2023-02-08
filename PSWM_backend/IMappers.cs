@@ -11,5 +11,6 @@ namespace PSWM_backend
         Device FetchAllDevices(IDataReader dataread);
         
         Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread);
+        DeviceDetails Fetchdevicedetails(IDataReader dataReader);
     }
 }

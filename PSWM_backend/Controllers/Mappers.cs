@@ -57,6 +57,33 @@ namespace PSWM_backend.Controllers
 
         }
 
+
+        public DeviceDetails Fetchdevicedetails(IDataReader dataReader) 
+        {
+            DeviceDetails device = new();
+            IDataReader dr = dataReader;
+            device.name = dr["name"].ToString();
+            device.macaddres = dr["user_name"].ToString()+" "+ dr["user_lastname"].ToString();
+            device.idleday = (int)dr["idleDays"];
+            DateTime dateto = (DateTime)dr["cycleTo"];
+            device.cycleto = dateto.ToShortDateString();
+            DateTime datefrom = (DateTime)dr["cycleFrom"];
+            device.cyclefrom = datefrom.ToShortDateString();
+            if (dr["admin_status"].ToString() == "true")
+            {
+                device.adminstatus = "Authorized" ;
+            }
+            else { device.adminstatus = "UnAuthorized"; }
+            device.userstatus = dr["user_status"].ToString();
+            device.quantityused = (Int64)dr["quantityused"];
+            device.rechargequantity = (Int64)dr["recharge_quantity"];
+            device.remainingquantity= (Int64)dr["recharge_quantity"] - (Int64)dr["quantityused"];
+
+
+
+            return device;
+        }
+
         public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread) {
             Arduinoinfo ard = new();
             IDataReader dr = dataread;
