@@ -225,5 +225,67 @@ namespace PSWM_backend.Controllers
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeviceDetails>("turndeviceOnOff", device.id,device.userstatus)));
         }
 
+        [Route("FirstChart()")]
+        [HttpPost]
+
+        public IActionResult FirstChart([FromBody] Device device)
+        {
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("yearsChartWaterFlow", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = device.id;
+                SqlDataReader dr = cmd.ExecuteReader();
+                var listchart = new List<Chart>();
+                Chart chart = new Chart();
+                var waterchart=new List<long>();
+                var turbiditychart = new List<Double>();
+                var categorychart = new List<string>();
+               
+
+                
+                while (dr.Read())
+                {
+                    
+                    categorychart.Add(dr["date"].ToString());
+                    waterchart.Add((long)dr["wateramount"]);
+                    
+                
+                }
+
+                chart.water = waterchart;
+                chart.category= categorychart;
+                
+
+                SqlCommand cmd1 = new("yearsCharturbidity", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = device.id;
+                SqlDataReader dr1 = cmd1.ExecuteReader();
+
+                while (dr1.Read())
+                {
+                    
+                    turbiditychart.Add((Double)dr1["turbidityvalue"]);
+
+                }
+                chart.turbidity = turbiditychart;
+
+                listchart.Add(chart);
+
+                con.Close();
+                return Ok(JsonConvert.SerializeObject(listchart));
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+                    
+        }
+
+
     }
 }
