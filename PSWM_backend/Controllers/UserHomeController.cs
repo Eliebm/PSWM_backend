@@ -134,7 +134,7 @@ namespace PSWM_backend.Controllers
 
 
         [Route("FetchUserDevices()")]
-        [HttpPost]
+        [HttpPost,Authorize]
         public IActionResult FetchUserDevices([FromBody] User user)
          {
             
@@ -217,6 +217,9 @@ namespace PSWM_backend.Controllers
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails",_mapperservice.Fetchdevicedetails,device.id)));
         }
 
+
+
+
         [Route("TurndeviceOnOff()")]
         [HttpPost,Authorize]
 
@@ -257,7 +260,7 @@ namespace PSWM_backend.Controllers
                     
                 
                 }
-
+                dr.Close();
                 chart.water = waterchart;
                 chart.category= categorychart;
                 
@@ -278,7 +281,7 @@ namespace PSWM_backend.Controllers
                 chart.turbidity = turbiditychart;
 
                 listchart.Add(chart);
-
+                dr1.Close();
                 con.Close();
                 return Ok(JsonConvert.SerializeObject(listchart));
             }
@@ -286,6 +289,304 @@ namespace PSWM_backend.Controllers
                     
         }
 
+        [Route("ChartByYear()")]
+        [HttpPost]
+
+        public IActionResult ChartByYear([FromBody] YearChart ychart)
+        {
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("FetchYearChart", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = ychart.deviceid;
+                cmd.Parameters.Add("@yearid", SqlDbType.NVarChar).Value = ychart.year.ToString();
+                SqlDataReader dr = cmd.ExecuteReader();
+                var listchart = new List<Chart>();
+                Chart chart = new Chart();
+                var waterchart = new List<long>();
+                var categorychart = new List<string>();
+
+                while (dr.Read())
+                {
+                    string ycase = dr["monthdata"].ToString();
+                    if (ycase == "1")
+                    {
+                        categorychart.Add("Jan");
+                    }else if (ycase == "2")
+                    {
+                        categorychart.Add("Feb");
+                    }
+                    else if (ycase == "3")
+                    {
+                        categorychart.Add("Mar");
+                    }
+                    else if (ycase == "4")
+                    {
+                        categorychart.Add("Apr");
+                    }
+                    else if (ycase == "5")
+                    {
+                        categorychart.Add("May");
+
+                    }
+                    else if (ycase == "6")
+                    {
+                        categorychart.Add("Jun");
+                    }
+                    else if (ycase == "7")
+                    {
+                        categorychart.Add("Jul");
+                    }
+                    else if (ycase == "8")
+                    {
+                        categorychart.Add("Aug");
+                    }
+                    else if (ycase == "9")
+                    {
+                        categorychart.Add("Sep");
+                    }
+                    else if (ycase == "10")
+                    {
+                        categorychart.Add("Oct");
+                    }
+                    else if (ycase == "11")
+                    {
+                        categorychart.Add("Nov");
+                    }
+                    else if (ycase == "12")
+                    {
+                        categorychart.Add("Dec");
+                    }
+
+                    waterchart.Add((long)dr["wateramount"]); 
+
+                }
+                chart.category = categorychart;
+                chart.water = waterchart;
+                listchart.Add(chart);
+
+                dr.Close();
+                con.Close();
+
+                return Ok(JsonConvert.SerializeObject(listchart));
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+                
+        }
+
+
+        [Route("PercentageChartByYear()")]
+        [HttpPost]
+
+        public IActionResult PercentageChartByYear([FromBody] YearChart ychart)
+        {
+            long totalamount = 0;
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("FetchYearChartpercentage", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = ychart.deviceid;
+                cmd.Parameters.Add("@yearid", SqlDbType.NVarChar).Value = ychart.year.ToString();
+                SqlDataReader dr = cmd.ExecuteReader();
+                
+
+                if (dr.Read())
+                {
+                    totalamount = (long)dr["totalamount"];
+                }
+                dr.Close();
+                con.Close();
+                con.Open();
+
+                SqlCommand cmd1 = new("FetchYearChart", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = ychart.deviceid;
+                cmd1.Parameters.Add("@yearid", SqlDbType.NVarChar).Value = ychart.year.ToString();
+                SqlDataReader dr1 = cmd1.ExecuteReader();
+                var listchart = new List<PercentageYear>();
+                
+
+                while (dr1.Read())
+                {
+                    PercentageYear pyear = new();
+
+                    string ycase = dr1["monthdata"].ToString();
+
+                    if (ycase == "1")
+                    {
+                        pyear.name="Jan";
+                    }
+                    else if (ycase == "2")
+                    {
+                        pyear.name = "Feb";
+                    }
+                    else if (ycase == "3")
+                    {
+                        pyear.name = "Mar";
+                    }
+                    else if (ycase == "4")
+                    {
+                        pyear.name = "Apr";
+                    }
+                    else if (ycase == "5")
+                    {
+                        pyear.name = "May";
+
+                    }
+                    else if (ycase == "6")
+                    {
+                        pyear.name = "Jun";
+                    }
+                    else if (ycase == "7")
+                    {
+                        pyear.name = "Jul";
+                    }
+                    else if (ycase == "8")
+                    {
+                        pyear.name = "Aug";
+                    }
+                    else if (ycase == "9")
+                    {
+                        pyear.name = "Sep";
+                    }
+                    else if (ycase == "10")
+                    {
+                        pyear.name = "Oct";
+                    }
+                    else if (ycase == "11")
+                    {
+                        pyear.name = "Nov";
+                    }
+                    else if (ycase == "12")
+                    {
+                        pyear.name = "Dec";
+                    }
+
+                   pyear.y=(long)dr1["wateramount"] *100 / totalamount;
+                   listchart.Add(pyear);
+                }
+                
+                
+
+                dr1.Close();
+                con.Close();
+
+                return Ok(JsonConvert.SerializeObject(listchart));
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+
+        }
+
+        [Route("TurbidityLineChart()")]
+        [HttpPost]
+
+        public IActionResult TurbidityLineChart([FromBody] YearChart ychart)
+        {
+            
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("FetchYearTurbidityAverage", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = ychart.deviceid;
+                cmd.Parameters.Add("@yearid", SqlDbType.NVarChar).Value = ychart.year.ToString();
+                SqlDataReader dr = cmd.ExecuteReader();
+                var listchart = new List<TurbidityChart>();
+                TurbidityChart chart = new TurbidityChart();
+                var turbidity = new List<Double>();
+                var categorychart = new List<string>();
+
+                while (dr.Read())
+                {
+                    string ycase = dr["turbdate"].ToString();
+                    if (ycase == "1")
+                    {
+                        categorychart.Add("Jan");
+                    }
+                    else if (ycase == "2")
+                    {
+                        categorychart.Add("Feb");
+                    }
+                    else if (ycase == "3")
+                    {
+                        categorychart.Add("Mar");
+                    }
+                    else if (ycase == "4")
+                    {
+                        categorychart.Add("Apr");
+                    }
+                    else if (ycase == "5")
+                    {
+                        categorychart.Add("May");
+
+                    }
+                    else if (ycase == "6")
+                    {
+                        categorychart.Add("Jun");
+                    }
+                    else if (ycase == "7")
+                    {
+                        categorychart.Add("Jul");
+                    }
+                    else if (ycase == "8")
+                    {
+                        categorychart.Add("Aug");
+                    }
+                    else if (ycase == "9")
+                    {
+                        categorychart.Add("Sep");
+                    }
+                    else if (ycase == "10")
+                    {
+                        categorychart.Add("Oct");
+                    }
+                    else if (ycase == "11")
+                    {
+                        categorychart.Add("Nov");
+                    }
+                    else if (ycase == "12")
+                    {
+                        categorychart.Add("Dec");
+                    }
+
+                    turbidity.Add((Double)dr["averagevalue"]);
+
+                }
+                chart.category = categorychart;
+                chart.turbidity = turbidity;
+                listchart.Add(chart);
+
+                dr.Close();
+                con.Close();
+
+                return Ok(JsonConvert.SerializeObject(listchart));
+            }
+            
+            catch (Exception ex) { return BadRequest(ex.Message); }
+
+
+
+        }
 
     }
 }
