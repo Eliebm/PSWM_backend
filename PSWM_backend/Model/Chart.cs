@@ -4,9 +4,9 @@ namespace PSWM_backend.Model
 {
     public class Chart
     {
-        public List<long> water { get; set; }
-        public List<Double> turbidity { get; set; }
-        public List<string> category { get; set; }
+        public List<long>? water { get; set; }
+        public List<Double>? turbidity { get; set; }
+        public List<string>? category { get; set; }
     }
 
     public class YearChart
@@ -22,7 +22,15 @@ namespace PSWM_backend.Model
     }
     public class TurbidityChart
     {
-        public List<Double> turbidity { get; set; }
-        public List<string> category { get; set; }
+        public List<Double>? turbidity { get; set; }
+        public List<string>? category { get; set; }
+    }
+
+
+    public class PostMonthChart
+    {
+        public string? deviceid { get; set; }
+        public int year { get; set; }
+        public string? month { get; set; }
     }
 }

@@ -46,4 +46,10 @@ namespace PSWM_backend.Model
         public string? userstatus { get; set; }
     }
 
+    public class PostDevice
+    {
+        public string? id { get; set; }
+        public string? userstatus { get; set; }
+
+    }
 }
