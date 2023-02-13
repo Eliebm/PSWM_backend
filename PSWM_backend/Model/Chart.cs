@@ -33,4 +33,14 @@ namespace PSWM_backend.Model
         public int year { get; set; }
         public string? month { get; set; }
     }
+    public class PostDailyChart
+    {
+        public string? deviceid { get; set; }
+        public string? year { get; set; }
+        public string? Time { get; set; }
+
+        public long watervalue {get; set; }
+        public double? turbidityvalue {get; set; }
+    }
+
 }

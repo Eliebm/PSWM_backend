@@ -12,5 +12,7 @@ namespace PSWM_backend
         
         Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread);
         DeviceDetails Fetchdevicedetails(IDataReader dataReader);
+        PostDailyChart FetchDailyWaterData(IDataReader dataReader);
+        PostDailyChart FetchDailyTurbidityData(IDataReader dataReader);
     }
 }

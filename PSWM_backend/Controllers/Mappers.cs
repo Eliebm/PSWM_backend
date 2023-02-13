@@ -1,4 +1,5 @@
-﻿using PSWM_backend.Model;
+﻿using Nancy.ViewEngines;
+using PSWM_backend.Model;
 using System.Data;
 using System.Numerics;
 
@@ -83,6 +84,29 @@ namespace PSWM_backend.Controllers
 
             return device;
         }
+
+        public PostDailyChart FetchDailyWaterData(IDataReader dataReader)
+        {
+            PostDailyChart device = new();
+            IDataReader dr = dataReader;
+
+            device.Time=dr["time"].ToString();
+            device.watervalue = (long)dr["value"];
+
+            return device;
+        }
+        public PostDailyChart FetchDailyTurbidityData(IDataReader dataReader)
+        {
+            PostDailyChart device = new();
+            IDataReader dr = dataReader;
+
+            device.Time = dr["time"].ToString();
+            device.turbidityvalue = (Double)dr["value"];
+
+            return device;
+        }
+
+
 
         public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread) {
             Arduinoinfo ard = new();

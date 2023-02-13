@@ -589,7 +589,7 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("MonthWaterTurbidityChart()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult MonthWaterTurbidityChart( [FromBody] PostMonthChart monthChart )
         {
@@ -651,6 +651,22 @@ namespace PSWM_backend.Controllers
                 return Ok(JsonConvert.SerializeObject(listchart));
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        [Route("DailyWaterData()")]
+        [HttpPost]
+
+        public IActionResult DailyWaterData([FromBody] PostDailyChart dailyc)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<PostDailyChart>("dailyTableData", _mapperservice.FetchDailyWaterData, dailyc.deviceid,dailyc.year)));
+        }
+
+        [Route("DailyTurbidityData()")]
+        [HttpPost]
+
+        public IActionResult DailyTurbidityData([FromBody] PostDailyChart dailyc)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<PostDailyChart>("dailyTableTurbidityData", _mapperservice.FetchDailyTurbidityData, dailyc.deviceid, dailyc.year)));
         }
 
     }
