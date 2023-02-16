@@ -5,6 +5,8 @@
      public string tokenAuthentication(string id);
      public void CheckDateValidation(string deviceid);
 
+       public void CheckRemainingQuantity(string deviceid);
+
 
     }
    

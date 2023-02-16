@@ -214,8 +214,12 @@ namespace PSWM_backend.Controllers
         {
             _additionService.CheckDateValidation(device.id);
 
-            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails",_mapperservice.Fetchdevicedetails,device.id)));
-        }
+            _additionService.CheckRemainingQuantity(device.id); 
+
+         return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails", _mapperservice.Fetchdevicedetails, device.id)));
+
+
+             }
 
 
 
@@ -225,6 +229,7 @@ namespace PSWM_backend.Controllers
 
         public IActionResult TurndeviceOnOff([FromBody] PostDevice device)
         {
+            _additionService.CheckRemainingQuantity(device.id);
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeviceDetails>("turndeviceOnOff", device.id,device.userstatus)));
         }
 

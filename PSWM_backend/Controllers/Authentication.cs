@@ -40,7 +40,7 @@ namespace PSWM_backend.Controllers
                 issuer: "https://localhost:5000",
                 audience: "https://localhost:5000",
                 claims: new List<Claim>(),
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: DateTime.UtcNow.AddHours(5),
                 signingCredentials: signinCredentials
             );
             var issueDate = DateTime.UtcNow;
@@ -135,6 +135,56 @@ namespace PSWM_backend.Controllers
 
             }
             catch (Exception ex) { }
+
+        }
+
+        public void CheckRemainingQuantity(string id)
+        {
+
+            var date = DateTime.Now;
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+
+
+
+                long amount = 0;
+                string year = date.Year.ToString();
+                string month = date.Month.ToString();
+
+                SqlCommand cmd1 = new("GetUsedAmountForEachDevice", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                cmd1.Parameters.Add("@setyear", SqlDbType.NVarChar).Value = year;
+                cmd1.Parameters.Add("@setmonth", SqlDbType.NVarChar).Value = month;
+
+                SqlDataReader dr1 = cmd1.ExecuteReader();
+
+                while (dr1.Read())
+                {
+                    amount += (long)dr1["usedamount"];
+
+
+                }
+                SqlCommand cmd2 = new("UpdateDeviceQuantityUsed", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd2.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                cmd2.Parameters.Add("@quant", SqlDbType.BigInt).Value = amount;
+                dr1 = cmd2.ExecuteReader();
+
+                dr1.Close();
+
+                con.Close();
+
+
+            }
+            catch (Exception ex) {  }
 
         }
 
