@@ -27,6 +27,7 @@ namespace PSWM_backend.Controllers
 
         public string FetchDeviceInfo([FromBody] Arduino ard)
         {
+            _additionalService.CheckRemainingQuantity(ard.id);
             string replymsg = "";
             replymsg = JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Arduinoinfo>("FetchArduinoInfos", _mapperservice.ArdFetchDeviceInfo,ard.id ,ard.useraccount));
             return replymsg;

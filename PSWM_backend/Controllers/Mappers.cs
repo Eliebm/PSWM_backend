@@ -120,7 +120,14 @@ namespace PSWM_backend.Controllers
 
         }
 
+        public PostNotification notificationcount(IDataReader dataread)
+        {
+            PostNotification postnotif = new();
+            IDataReader dr = dataread;
+            postnotif.id = (int)dr["notification_number"];
 
+            return postnotif;
+        }
 
     }
 }

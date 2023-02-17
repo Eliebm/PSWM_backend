@@ -62,4 +62,21 @@
         public string? password { get; set; }
 
     }
+
+    public class Notification
+    {
+        public int id { get; set; }
+        public string? deviceid { get; set; }
+        public string? text { get; set; }
+        public string? notiftype { get; set; }
+        public Boolean iread { get; set; }
+        public string? date { get; set; }  
+    }
+
+    public class PostNotification
+    {
+        public int id { get; set; }
+        public string? deviceid { get; set; }
+        public string? notiftype { get; set; }
+    }
 }

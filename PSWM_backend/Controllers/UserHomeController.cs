@@ -674,5 +674,13 @@ namespace PSWM_backend.Controllers
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<PostDailyChart>("dailyTableTurbidityData", _mapperservice.FetchDailyTurbidityData, dailyc.deviceid, dailyc.year)));
         }
 
+        [Route("NotificationCount()")]
+        [HttpPost]
+
+        public IActionResult NotificationCount([FromBody] PostNotification notif)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<PostNotification>("NotificationFaultCount", _mapperservice.notificationcount, notif.deviceid, notif.notiftype)));
+        }
+
     }
 }

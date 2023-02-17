@@ -14,5 +14,7 @@ namespace PSWM_backend
         DeviceDetails Fetchdevicedetails(IDataReader dataReader);
         PostDailyChart FetchDailyWaterData(IDataReader dataReader);
         PostDailyChart FetchDailyTurbidityData(IDataReader dataReader);
+
+        PostNotification notificationcount(IDataReader dataread);
     }
 }
