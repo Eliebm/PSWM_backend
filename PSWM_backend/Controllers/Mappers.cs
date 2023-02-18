@@ -106,6 +106,27 @@ namespace PSWM_backend.Controllers
             return device;
         }
 
+        public PostNotification notificationcount(IDataReader dataread)
+        {
+            PostNotification postnotif = new();
+            IDataReader dr = dataread;
+            postnotif.id = (int)dr["notification_number"];
+
+            return postnotif;
+        }
+
+        public Notification fetchNotification(IDataReader dataread)
+        {
+            Notification notification = new Notification();
+            IDataReader dr = dataread;
+
+            notification.id = (int)dr["id"];
+            notification.date = dr["notif_date"].ToString();
+            notification.iread = dr["notif_isread"].ToString();
+            notification.text = dr["notif_text"].ToString() + " " + dr["notif_value"].ToString();
+
+            return notification;
+        }
 
 
         public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread) {
@@ -120,14 +141,7 @@ namespace PSWM_backend.Controllers
 
         }
 
-        public PostNotification notificationcount(IDataReader dataread)
-        {
-            PostNotification postnotif = new();
-            IDataReader dr = dataread;
-            postnotif.id = (int)dr["notification_number"];
-
-            return postnotif;
-        }
+        
 
     }
 }

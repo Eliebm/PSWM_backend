@@ -682,5 +682,20 @@ namespace PSWM_backend.Controllers
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<PostNotification>("NotificationFaultCount", _mapperservice.notificationcount, notif.deviceid, notif.notiftype)));
         }
 
+        [Route("FetchMessages()")]
+        [HttpPost]
+
+        public IActionResult FetchMessages([FromBody] PostNotification notif)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Notification>("FetchMessages", _mapperservice.fetchNotification, notif.deviceid, notif.notiftype)));
+        }
+        [Route("DeleteMessages()")]
+        [HttpPost]
+
+        public IActionResult DeleteMessages([FromBody] DeleteMessage msg)
+        {
+            return Ok(JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeleteMessage>("DeletleMessages",msg.id)));
+        }
+
     }
 }

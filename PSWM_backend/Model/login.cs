@@ -69,7 +69,7 @@
         public string? deviceid { get; set; }
         public string? text { get; set; }
         public string? notiftype { get; set; }
-        public Boolean iread { get; set; }
+        public string? iread { get; set; }
         public string? date { get; set; }  
     }
 
@@ -78,5 +78,10 @@
         public int id { get; set; }
         public string? deviceid { get; set; }
         public string? notiftype { get; set; }
+    }
+
+    public class DeleteMessage
+    {
+        public int id { get; set; }
     }
 }

@@ -16,5 +16,6 @@ namespace PSWM_backend
         PostDailyChart FetchDailyTurbidityData(IDataReader dataReader);
 
         PostNotification notificationcount(IDataReader dataread);
+        public Notification fetchNotification(IDataReader dataread);
     }
 }

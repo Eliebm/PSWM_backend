@@ -104,6 +104,7 @@ namespace PSWM_backend.Controllers
                     idle = (int)dr["idleDays"];
                     dateto = (DateTime)dr["cycleTo"];
                 }
+                dr.Close();
                 con.Close();
                 int res = date.Date.CompareTo(dateto);
 
@@ -118,7 +119,23 @@ namespace PSWM_backend.Controllers
                 }
                 if(newidleday - NrOfDays != idle)
                 {
-                    newidleday = newidleday - NrOfDays;
+                    if (newidleday - NrOfDays < 0)
+                    {
+                        newidleday = 0;
+                        con.Open();
+                        SqlCommand cmd2 = new("UpDateAuthority", con)
+                        {
+                            CommandType = CommandType.StoredProcedure
+                        };
+                        cmd2.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                        cmd2.Parameters.Add("@auth_status", SqlDbType.NVarChar).Value = "false";
+                        SqlDataReader dr2 = cmd2.ExecuteReader();
+                        dr2.Close();
+                        con.Close();
+
+                    }
+                    else { newidleday = newidleday - NrOfDays; }
+                    
                     con.Open();
                     SqlCommand cmd1 = new("UpdateIdleDays", con)
                     {
@@ -127,11 +144,12 @@ namespace PSWM_backend.Controllers
                     cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
                     cmd1.Parameters.Add("@idle", SqlDbType.NVarChar).Value = newidleday;
                     SqlDataReader dr1 = cmd1.ExecuteReader();
-
+                    dr1.Close();
+                    con.Close();
                 }
+                
 
-
-                con.Close();
+               
 
             }
             catch (Exception ex) { }
