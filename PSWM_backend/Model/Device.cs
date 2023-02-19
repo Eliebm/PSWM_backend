@@ -52,4 +52,10 @@ namespace PSWM_backend.Model
         public string? userstatus { get; set; }
 
     }
+
+    public class RefillAccount
+    {
+        public string? deviceId { get; set; }
+        public string? serialnumb { get; set; }
+    }
 }

@@ -78,7 +78,7 @@ namespace PSWM_backend.Controllers
             device.userstatus = dr["user_status"].ToString();
             device.quantityused = (Int64)dr["quantityused"];
             device.rechargequantity = (Int64)dr["recharge_quantity"];
-            device.remainingquantity= (Int64)dr["recharge_quantity"] - (Int64)dr["quantityused"];
+            device.remainingquantity=(Int64)dr["remainingquant"];
 
 
 

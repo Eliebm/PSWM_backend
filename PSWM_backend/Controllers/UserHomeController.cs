@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using System.Collections.Generic;
 using Microsoft.VisualBasic;
+using System;
 
 namespace PSWM_backend.Controllers
 {
@@ -675,7 +676,7 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("NotificationCount()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult NotificationCount([FromBody] PostNotification notif)
         {
@@ -683,19 +684,83 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("FetchMessages()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult FetchMessages([FromBody] PostNotification notif)
         {
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<Notification>("FetchMessages", _mapperservice.fetchNotification, notif.deviceid, notif.notiftype)));
         }
         [Route("DeleteMessages()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult DeleteMessages([FromBody] DeleteMessage msg)
         {
             return Ok(JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeleteMessage>("DeletleMessages",msg.id)));
         }
+
+        [Route("RechargeAccount()")]
+        [HttpPost]
+        public IActionResult RechargeAccount([FromBody] RefillAccount refill) {
+            int newdays = 0;
+            string status = "";
+            string? msg = "";
+            DateTime date = DateTime.Now;
+            DateTime exp=DateTime.Now;
+            long value = 0;
+            
+
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+                SqlCommand cmd = new("CheckCardStatus", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.Add("@serialnumb", SqlDbType.NVarChar).Value = refill.serialnumb;
+                
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    newdays = (int)dr["idle"];
+                    status=dr["isused"].ToString();
+                    exp = (DateTime)dr["expirydate"];
+                    value = (long)dr["rechargeValue"];
+
+                
+                dr.Close();
+                con.Close();
+
+                DateTime insertdate = date.AddDays(newdays);
+                int res = exp.CompareTo(date.Date);
+
+                if (res == -1)
+                {
+                    msg = "11";
+                }
+                else if (status == "true")
+                {
+                    msg = "12";
+
+                }
+                else
+                {
+                        _GetSetSPI.PostSpAllItem<DeleteMessage>("AddRefilledAmount", refill.deviceId, value);
+                    msg = JsonConvert.SerializeObject(_GetSetSPI.PostSpAllItem<DeleteMessage>("SubmitRefillCard",refill.deviceId,newdays,date.Date,insertdate.Date,value,refill.serialnumb));
+                }
+                }
+                else { msg = "10"; }
+
+
+
+                return Ok(msg);
+            }
+            catch(Exception ex) { return BadRequest(ex.Message); }
+            }
+
+
 
     }
 }
