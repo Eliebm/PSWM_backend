@@ -17,5 +17,6 @@ namespace PSWM_backend
 
         PostNotification notificationcount(IDataReader dataread);
         public Notification fetchNotification(IDataReader dataread);
+        public adminDeviceDetails AdminFetchdevicedetails(IDataReader dataread);
     }
 }

@@ -206,5 +206,47 @@ namespace PSWM_backend.Controllers
 
         }
 
+
+
+        public void NewMonthUpdateReamingQuantity(string id)
+        {
+
+            var date = DateTime.Now;
+            try
+            {
+                string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
+                SqlConnection con = new(logDbConnectionString);
+                con.Open();
+
+
+
+
+                int firstday = date.Day;
+
+                if (firstday == 1)
+                {
+                    SqlCommand cmd = new("NewMonthUpdateTotalReamaingAmount", con)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+
+                    cmd.Parameters.Add("@deviceid",SqlDbType.NVarChar).Value=id;
+                    SqlDataReader dr= cmd.ExecuteReader();
+                    dr.Close();
+                    con.Close();
+
+
+                 }
+
+
+
+            
+
+
+            }
+            catch (Exception ex) { }
+
+        }
+
     }
 }

@@ -215,7 +215,8 @@ namespace PSWM_backend.Controllers
         {
             _additionService.CheckDateValidation(device.id);
 
-            _additionService.CheckRemainingQuantity(device.id); 
+            _additionService.CheckRemainingQuantity(device.id);
+            _additionService.NewMonthUpdateReamingQuantity(device.id);
 
          return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails", _mapperservice.Fetchdevicedetails, device.id)));
 
@@ -235,7 +236,7 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("FirstChart()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult FirstChart([FromBody] Device device)
         {
@@ -296,7 +297,7 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("ChartByYear()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult ChartByYear([FromBody] YearChart ychart)
         {
@@ -389,7 +390,7 @@ namespace PSWM_backend.Controllers
 
 
         [Route("PercentageChartByYear()")]
-        [HttpPost]
+        [HttpPost,Authorize]
 
         public IActionResult PercentageChartByYear([FromBody] YearChart ychart)
         {
@@ -699,7 +700,7 @@ namespace PSWM_backend.Controllers
         }
 
         [Route("RechargeAccount()")]
-        [HttpPost]
+        [HttpPost,Authorize]
         public IActionResult RechargeAccount([FromBody] RefillAccount refill) {
             int newdays = 0;
             string status = "";

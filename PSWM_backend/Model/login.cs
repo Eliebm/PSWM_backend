@@ -84,4 +84,10 @@
     {
         public int id { get; set; }
     }
+
+    public class PostFetchAdminUser
+    {
+      public  int cityid { get; set; }
+    }
+    
 }

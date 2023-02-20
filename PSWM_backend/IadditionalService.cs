@@ -6,7 +6,7 @@
      public void CheckDateValidation(string deviceid);
 
        public void CheckRemainingQuantity(string deviceid);
-
+        public void NewMonthUpdateReamingQuantity(string deviceid);
 
     }
    

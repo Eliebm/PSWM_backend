@@ -1,13 +1,12 @@
-﻿using Nancy.ViewEngines;
-using PSWM_backend.Model;
+﻿using PSWM_backend.Model;
 using System.Data;
-using System.Numerics;
 
 namespace PSWM_backend.Controllers
 {
     public class Mappers : IMappers
     {
-        public District GetAllDistrict(IDataReader dataread) {
+        public District GetAllDistrict(IDataReader dataread)
+        {
             District dis = new();
             IDataReader dr = dataread;
 
@@ -15,10 +14,11 @@ namespace PSWM_backend.Controllers
             dis.Name = dr["district_name"].ToString();
 
             return dis;
-        
+
         }
 
-        public City GetCity(IDataReader dataread) {
+        public City GetCity(IDataReader dataread)
+        {
             City city = new();
             IDataReader dr = dataread;
 
@@ -26,18 +26,19 @@ namespace PSWM_backend.Controllers
             city.Name = dr["city_name"].ToString();
 
             return city;
-        
+
         }
-        public User GetUser(IDataReader dataread) { 
-          User user = new();
-            IDataReader dr= dataread;
+        public User GetUser(IDataReader dataread)
+        {
+            User user = new();
+            IDataReader dr = dataread;
             user.account = dr["user_accountname"].ToString();
             user.name = dr["user_name"].ToString() + " " + dr["user_lastname"].ToString();
             user.phone = dr["user_phone"].ToString();
             user.email = dr["user_email"].ToString();
 
             return user;
-        
+
         }
 
         public Device FetchAllDevices(IDataReader dataread)
@@ -59,12 +60,12 @@ namespace PSWM_backend.Controllers
         }
 
 
-        public DeviceDetails Fetchdevicedetails(IDataReader dataReader) 
+        public DeviceDetails Fetchdevicedetails(IDataReader dataReader)
         {
             DeviceDetails device = new();
             IDataReader dr = dataReader;
             device.name = dr["name"].ToString();
-            device.macaddres = dr["user_name"].ToString()+" "+ dr["user_lastname"].ToString();
+            device.macaddres = dr["user_name"].ToString() + " " + dr["user_lastname"].ToString();
             device.idleday = (int)dr["idleDays"];
             DateTime dateto = (DateTime)dr["cycleTo"];
             device.cycleto = dateto.ToShortDateString();
@@ -72,13 +73,13 @@ namespace PSWM_backend.Controllers
             device.cyclefrom = datefrom.ToShortDateString();
             if (dr["admin_status"].ToString() == "true")
             {
-                device.adminstatus = "Authorized" ;
+                device.adminstatus = "Authorized";
             }
             else { device.adminstatus = "UnAuthorized"; }
             device.userstatus = dr["user_status"].ToString();
             device.quantityused = (Int64)dr["quantityused"];
             device.rechargequantity = (Int64)dr["recharge_quantity"];
-            device.remainingquantity=(Int64)dr["remainingquant"];
+            device.remainingquantity = (Int64)dr["remainingquant"];
 
 
 
@@ -90,7 +91,7 @@ namespace PSWM_backend.Controllers
             PostDailyChart device = new();
             IDataReader dr = dataReader;
 
-            device.Time=dr["time"].ToString();
+            device.Time = dr["time"].ToString();
             device.watervalue = (long)dr["value"];
 
             return device;
@@ -129,11 +130,12 @@ namespace PSWM_backend.Controllers
         }
 
 
-        public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread) {
+        public Arduinoinfo ArdFetchDeviceInfo(IDataReader dataread)
+        {
             Arduinoinfo ard = new();
             IDataReader dr = dataread;
             ard.id = dr["deviceId"].ToString();
-            ard.remainingquant = (Int64)dr["recharge_quantity"] - (Int64)dr["quantityused"];
+            ard.remainingquant = (Int64)dr["remainingquant"];
             ard.userstatus = dr["user_status"].ToString();
             ard.adminstatus = dr["admin_status"].ToString();
 
@@ -141,7 +143,27 @@ namespace PSWM_backend.Controllers
 
         }
 
-        
+        public adminDeviceDetails AdminFetchdevicedetails(IDataReader dataReader)
+        {
+            adminDeviceDetails device = new();
+            IDataReader dr = dataReader;
+            device.id = dr["deviceId"].ToString();
+            device.name = dr["name"].ToString();
+            device.macaddres = dr["user_name"].ToString() + " " + dr["user_lastname"].ToString();
+            device.cityname = dr["city_name"].ToString();
+            device.adminstatus = dr["admin_status"].ToString();
+            device.userstatus = dr["user_status"].ToString();
+            device.quantityused = (Int64)dr["quantityused"] * 100 / (Int64)dr["recharge_quantity"];
+            device.rechargequantity = (Int64)dr["recharge_quantity"];
+            device.remainingquantity = (Int64)dr["remainingquant"];
+
+
+
+            return device;
+        }
+
+       
+
 
     }
 }
