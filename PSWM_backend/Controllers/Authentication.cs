@@ -212,6 +212,13 @@ namespace PSWM_backend.Controllers
         {
 
             var date = DateTime.Now;
+           
+            long amount = 0;
+            string year = date.Year.ToString();
+            long quantity = 0;
+            long remain = 0;
+            long remaining = 0;
+            string? flag = "";
             try
             {
                 string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
@@ -220,28 +227,108 @@ namespace PSWM_backend.Controllers
 
 
 
+                int monthnumb = date.Month;
 
                 int firstday = date.Day;
 
+                monthnumb = monthnumb - 1;
+                if (monthnumb == 0)
+                {
+                    monthnumb = 12;
+                }
+
+                SqlCommand cmd2 = new("[fetchDeviceDetails]", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd2.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                SqlDataReader dr2 = cmd2.ExecuteReader();
+                while (dr2.Read())
+                {
+                    quantity = (long)dr2["recharge_quantity"];
+                    remain = (long)dr2["remainingquant"];
+
+                }
+                dr2.Close();
+
+                SqlCommand cmdgetflag = new("[fetchDeviceDetails]", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmdgetflag.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                SqlDataReader drgetflag = cmdgetflag.ExecuteReader();
+                while (drgetflag.Read())
+                {
+                    flag = drgetflag["isupdated_endmonth_amount"].ToString();
+                   
+
+                }
+                drgetflag.Close();
+
+
                 if (firstday == 1)
                 {
+                    
+                    SqlCommand cmd1 = new("GetUsedAmountForEachDevice", con)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                    cmd1.Parameters.Add("@setyear", SqlDbType.NVarChar).Value = year;
+                    cmd1.Parameters.Add("@setmonth", SqlDbType.NVarChar).Value = monthnumb;
+
+                    SqlDataReader dr1 = cmd1.ExecuteReader();
+
+                    while (dr1.Read())
+                    {
+                        amount += (long)dr1["usedamount"];
+
+
+                    }
+                    dr1.Close();
+
+                    
+                        remaining = quantity - amount;
+
+                    if (flag!="true") { 
+                    
                     SqlCommand cmd = new("NewMonthUpdateTotalReamaingAmount", con)
                     {
                         CommandType = CommandType.StoredProcedure
                     };
 
                     cmd.Parameters.Add("@deviceid",SqlDbType.NVarChar).Value=id;
+                    cmd.Parameters.Add("@remaing", SqlDbType.BigInt).Value = remaining;
                     SqlDataReader dr= cmd.ExecuteReader();
                     dr.Close();
-                    con.Close();
+                    
+
+                    }
+                }
+                else if (firstday != 1)
+                {
+                    if (flag == "true")
+                    {
+                        SqlCommand cmd = new("update_isUpdatedmonth_flag", con)
+                        {
+                            CommandType = CommandType.StoredProcedure
+                        };
+
+                        cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                        cmd.Parameters.Add("@flag", SqlDbType.BigInt).Value = false;
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        dr.Close();
+                       
+
+                    }
+                    
+                }
 
 
-                 }
 
-
-
-            
-
+                con.Close();
 
             }
             catch (Exception ex) { }

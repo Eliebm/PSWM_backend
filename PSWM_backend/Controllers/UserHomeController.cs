@@ -214,9 +214,9 @@ namespace PSWM_backend.Controllers
         public IActionResult FetchDeviceDetails([FromBody] PostDevice device)
         {
             _additionService.CheckDateValidation(device.id);
-
-            _additionService.CheckRemainingQuantity(device.id);
             _additionService.NewMonthUpdateReamingQuantity(device.id);
+            _additionService.CheckRemainingQuantity(device.id);
+           
 
          return Ok(JsonConvert.SerializeObject(_GetSetSPI.GetSpAllItem<DeviceDetails>("fetchDeviceDetails", _mapperservice.Fetchdevicedetails, device.id)));
 
