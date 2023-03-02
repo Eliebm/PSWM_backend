@@ -218,7 +218,7 @@ namespace PSWM_backend.Controllers
             long quantity = 0;
             long remain = 0;
             long remaining = 0;
-            string? flag = "";
+            int flag = 0;
             try
             {
                 string logDbConnectionString = _configuration.GetValue<string>("ConnectionStrings:dbconnection");
@@ -228,13 +228,13 @@ namespace PSWM_backend.Controllers
 
 
                 int monthnumb = date.Month;
-
+                int previousMonth = 0;
                 int firstday = date.Day;
 
-                monthnumb = monthnumb - 1;
-                if (monthnumb == 0)
+                previousMonth = monthnumb - 1;
+                if (previousMonth == 0)
                 {
-                    monthnumb = 12;
+                    previousMonth = 12;
                 }
 
                 SqlCommand cmd2 = new("[fetchDeviceDetails]", con)
@@ -248,27 +248,12 @@ namespace PSWM_backend.Controllers
                 {
                     quantity = (long)dr2["recharge_quantity"];
                     remain = (long)dr2["remainingquant"];
-
+                    flag = (int)dr2["isupdated_endmonth_amount"];
                 }
                 dr2.Close();
 
-                SqlCommand cmdgetflag = new("[fetchDeviceDetails]", con)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                cmdgetflag.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
-                SqlDataReader drgetflag = cmdgetflag.ExecuteReader();
-                while (drgetflag.Read())
-                {
-                    flag = drgetflag["isupdated_endmonth_amount"].ToString();
-                   
-
-                }
-                drgetflag.Close();
-
-
-                if (firstday == 1)
+               
+                if (monthnumb != flag)
                 {
                     
                     SqlCommand cmd1 = new("GetUsedAmountForEachDevice", con)
@@ -277,7 +262,7 @@ namespace PSWM_backend.Controllers
                     };
                     cmd1.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
                     cmd1.Parameters.Add("@setyear", SqlDbType.NVarChar).Value = year;
-                    cmd1.Parameters.Add("@setmonth", SqlDbType.NVarChar).Value = monthnumb;
+                    cmd1.Parameters.Add("@setmonth", SqlDbType.NVarChar).Value = previousMonth;
 
                     SqlDataReader dr1 = cmd1.ExecuteReader();
 
@@ -292,7 +277,7 @@ namespace PSWM_backend.Controllers
                     
                         remaining = quantity - amount;
 
-                    if (flag!="true") { 
+                    
                     
                     SqlCommand cmd = new("NewMonthUpdateTotalReamaingAmount", con)
                     {
@@ -305,24 +290,19 @@ namespace PSWM_backend.Controllers
                     dr.Close();
                     
 
-                    }
-                }
-                else if (firstday != 1)
-                {
-                    if (flag == "true")
-                    {
-                        SqlCommand cmd = new("update_isUpdatedmonth_flag", con)
+                
+                        SqlCommand cmdflag = new("update_isUpdatedmonth_flag", con)
                         {
                             CommandType = CommandType.StoredProcedure
                         };
 
-                        cmd.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
-                        cmd.Parameters.Add("@flag", SqlDbType.BigInt).Value = false;
-                        SqlDataReader dr = cmd.ExecuteReader();
-                        dr.Close();
+                        cmdflag.Parameters.Add("@deviceid", SqlDbType.NVarChar).Value = id;
+                        cmdflag.Parameters.Add("@flag", SqlDbType.BigInt).Value = monthnumb;
+                        SqlDataReader drflag = cmdflag.ExecuteReader();
+                        drflag.Close();
                        
 
-                    }
+                    
                     
                 }
 
