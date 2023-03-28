@@ -21,12 +21,13 @@ namespace PSWM_backend.Controllers
     public class Authentication :IadditionalService
     {
         private readonly IConfiguration _configuration;
+        private readonly IGetSetSPI _GetSetSPI;
 
-       
 
-        public Authentication(IConfiguration configuration)
+        public Authentication(IConfiguration configuration , IGetSetSPI getSetSPI)
         {
             _configuration = configuration;
+            _GetSetSPI = getSetSPI;
         }
 
 
@@ -133,6 +134,10 @@ namespace PSWM_backend.Controllers
                         dr2.Close();
                         con.Close();
 
+                        // add fault message 
+
+                        _GetSetSPI.PostSpAllItem<Arduinoinfo>("ADDNOTIFICATION",id, "account expired ! no more idle days", "fault", "false", date, "0");
+
                     }
                     else { newidleday = newidleday - NrOfDays; }
                     
@@ -237,7 +242,7 @@ namespace PSWM_backend.Controllers
                     previousMonth = 12;
                 }
 
-                SqlCommand cmd2 = new("[fetchDeviceDetails]", con)
+                SqlCommand cmd2 = new("fetchDeviceDetails", con)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
