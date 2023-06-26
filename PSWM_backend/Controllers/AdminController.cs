@@ -11,14 +11,14 @@ namespace PSWM_backend.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class ArdminController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly IConfiguration _configuration;
         private readonly IMappers _mapperservice;
         private readonly IGetSetSPI _GetSetSPI;
         private readonly IadditionalService _additionService;
 
-        public ArdminController(IConfiguration configuration, IMappers mapperService, IGetSetSPI getSetSPI, IadditionalService additionalService)
+        public AdminController(IConfiguration configuration, IMappers mapperService, IGetSetSPI getSetSPI, IadditionalService additionalService)
         {
             _configuration = configuration;
             _mapperservice = mapperService;
